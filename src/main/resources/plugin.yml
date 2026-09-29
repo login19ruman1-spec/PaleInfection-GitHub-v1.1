@@ -1,0 +1,16 @@
+name: PaleInfection
+version: 1.0.0
+main: com.example.paleinfection.PaleInfectionPlugin
+api-version: '1.21.4'
+author: YourName
+description: Заражение бледным мхом, Сердца, Скрипуны и оптические иллюзии.
+website: https://github.com/YourName/PaleInfection
+commands:
+  pale:
+    description: Управление заражением бледным мхом.
+    usage: /pale <start|stop|status|reload>
+    permission: paleinfection.admin
+permissions:
+  paleinfection.admin:
+    description: Управление PaleInfection.
+    default: op
