@@ -1,0 +1,161 @@
+mkdir -p PaleInfection-GitHub-v1.1/{.github/workflows,src/main/java/com/paleinfection,src/main/resources}
+cd PaleInfection-GitHub-v1.1
+
+cat > settings.gradle <<'EOF'
+rootProject.name = 'PaleInfection-GitHub-v1.1'
+EOF
+
+cat > build.gradle <<'EOF'
+plugins {
+    id 'java'
+}
+
+group = 'com.paleinfection'
+version = '1.1'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+}
+
+dependencies {
+    compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    archiveBaseName = 'PaleInfection-GitHub'
+    archiveVersion = 'v1.1'
+}
+
+processResources {
+    filesMatching('plugin.yml') {
+        expand(version: project.version)
+    }
+}
+EOF
+
+cat > gradle.properties <<'EOF'
+org.gradle.jvmargs=-Xmx2g
+org.gradle.parallel=true
+EOF
+
+cat > .gitignore <<'EOF'
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+.idea/
+*.iml
+out/
+*.log
+EOF
+
+cat > src/main/resources/plugin.yml <<'EOF'
+name: PaleInfection
+version: '${version}'
+main: com.paleinfection.PaleInfectionPlugin
+api-version: '1.20'
+author: YourName
+description: Pale Infection plugin
+commands:
+  paleinfection:
+    description: Main command
+    usage: /paleinfection
+    aliases: [pi]
+    permission: paleinfection.admin
+permissions:
+  paleinfection.admin:
+    default: op
+EOF
+
+cat > src/main/java/com/paleinfection/PaleInfectionPlugin.java <<'EOF'
+package com.paleinfection;
+
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class PaleInfectionPlugin extends JavaPlugin {
+
+    @Override
+    public void onEnable() {
+        getLogger().info("PaleInfection v" + getDescription().getVersion() + " enabled.");
+    }
+
+    @Override
+    public void onDisable() {
+        getLogger().info("PaleInfection disabled.");
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equalsIgnoreCase("paleinfection")) {
+            sender.sendMessage(ChatColor.GREEN + "PaleInfection v" + getDescription().getVersion());
+            return true;
+        }
+        return false;
+    }
+}
+EOF
+
+cat > .github/workflows/build.yml <<'EOF'
+name: Build PaleInfection
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v3
+
+      - name: Build
+        run: gradle build --no-daemon
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: PaleInfection-GitHub-v1.1
+          path: build/libs/*.jar
+EOF
+
+cat > README.md <<'EOF'
+# PaleInfection-GitHub-v1.1
+
+Paper/Spigot plugin.
+
+## Build
+
+```bash
+gradle build
+```
+
+Готовый JAR: `build/libs/PaleInfection-GitHub-v1.1.jar`
+
+## Установка
+
+1. Скопируй JAR в `plugins/`
+2. Перезапусти сервер.
+3. Команда: `/paleinfection`
+EOF
