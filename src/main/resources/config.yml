@@ -1,0 +1,33 @@
+package ru.disasters.plugin.commands;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import ru.disasters.plugin.DisasterPlugin;
+import ru.disasters.plugin.gui.Menus;
+
+public class DisasterCommand implements CommandExecutor {
+
+    private final DisasterPlugin plugin;
+
+    public DisasterCommand(DisasterPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Эту команду может использовать только игрок.");
+            return true;
+        }
+
+        if (!player.hasPermission("disaster.use")) {
+            player.sendMessage("§cУ вас нет прав на использование этой команды.");
+            return true;
+        }
+
+        player.openInventory(Menus.mainMenu());
+        return true;
+    }
+}
